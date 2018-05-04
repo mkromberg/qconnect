@@ -1,0 +1,16 @@
+﻿Q expression,APL Expression,Test Description
+til 10,⍳10,Int64 List
+2,2,Int64 Atom
+`one,⊂'one',Symbol Atom
+`two`three,'two' 'three',Symbol list
+2*2.5 2.6,2×2.5 2.6,Double list
+(`set;`a;1 2),"(⊂'set') (⊂,'a')(1 2)",Complex list
+(1 2;(3 4;5 6)),(1 2)((3 4)(5 6)),Nested list
+"""a""",'a',Character Atom
+"""abc""",'abc',Character Vector
+0,0,Boolean Atom
+0 1,0 1,Boolean Vector
+`a`b`c!(1 2;3 5;7 11),"(,¨'abc')⍪⍉↑(1 2)(3 5)(7 11)",Dictionary
+flip `a`b`c!(1 2;3 5;7 11),"(,¨'abc')⍪⍉↑(1 2)(3 5)(7 11)",Table
+select from p where weight=17,(ptable[;3]∊'weight' 17)⌿ptable,Keyed Table
+"select from trade where date=last date, sym=`AMD",tradeq1,Table
