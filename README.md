@@ -1,12 +1,12 @@
 # qconnect
 
 An interface from Dyalog APL to Q. To use it, start q specifying
-a port to listen do:
+a port to listen on:
 ``` 
      q -p 5000
 ```
-Then from APL (repplace "qconnect" below with folder name which
-you have cloned the repo to):
+Then from APL (replacing "qconnect" below with folder name which
+you have cloned or unzipped this repository to):
 ``` 
      ]load qconnect/Q
      )copy conga DRC
@@ -17,5 +17,4 @@ you have cloned the repo to):
      ]load qconnect/UT
      UT 0
 ```
- 
-
+Prerequisites: Only tested with version 16.0, but should work with Dyalog version 13.1 or later. The use of ⎕CSV above requires Dyalog version 15.0 or later.
