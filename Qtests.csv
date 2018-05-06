@@ -13,4 +13,4 @@ til 10,⍳10,Int64 List
 `a`b`c!(1 2;3 5;7 11),"(,¨'abc')⍪⍉↑(1 2)(3 5)(7 11)",Dictionary
 flip `a`b`c!(1 2;3 5;7 11),"(,¨'abc')⍪⍉↑(1 2)(3 5)(7 11)",Table
 select from p where weight=17,(ptable[;3]∊'weight' 17)⌿ptable,Keyed Table
-"select from trade where date=last date, sym=`AMD",tradeq1,Table
+"select from trade where sym=`AMD",(trade[;2]∊'sym' 'AMD')⌿trade,Table

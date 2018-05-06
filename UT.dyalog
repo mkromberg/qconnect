@@ -1,4 +1,4 @@
-﻿ failed←UT debug;q;⎕IO;shouldbe;name;aplx;qx;OK;start;expected;got
+﻿ failed←UT debug;q;⎕IO;shouldbe;name;aplx;qx;OK;start;expected;got;trade;ptable
 ⍝ if debug = 1, stop on error
 
  ⎕IO←0
@@ -6,9 +6,12 @@
 
  start←2⊃⎕AI
  q←⎕NEW Q('127.0.0.1' 5000 'mkrom') ⍝ Connect to Q
- {}q.x'\l sp.q'                     ⍝ Load Suppliers and Parts
- :Trap 11                           ⍝ Will fail if TAQ already loaded
-     {}q.x'\l db/taq'               ⍝ Load Trades and Quotes
+
+ :Trap 0
+     ptable←q.x'p'
+     trade←q.x'trade'
+ :Else
+     'Unable to load p and trade - did you run UTdata.q?'⎕SIGNAL 11
  :EndTrap
 
  failed←⍬
