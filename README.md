@@ -1,11 +1,11 @@
 # qconnect
 
 An interface from Dyalog APL to Q. To use it, start q specifying
-a port to listen on and, if you want to run the unit tests, loading th UTtest.q script:
+a port to listen on and, if you want to run the unit tests, loading th UTdata.q script:
 ``` 
-     q qconnect\UTtest.q -p 5000
+     q qconnect\UTdata.q -p 5000
 ```
-Then from APL (replacing "qconnect" below with folder name which
+(replacing "qconnect" above and below with folder name which
 you have cloned or unzipped this repository to):
 ``` 
      ]load qconnect/Q
