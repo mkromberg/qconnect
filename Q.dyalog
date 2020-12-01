@@ -9,9 +9,9 @@
 
     cols←{(((⍴⍵)÷⍺),⍺)⍴⍵} ⍝ 4 cols ⍵ reshapes to have 4 cols
     fromsym←{z←¯1⌽⍵ ⋄ 1↓¨(z=⎕UCS 0)⊂z}
-    To64Int←{{⎕ml←3⋄(∊8⍴⊂(8⍴1),0){{1⊃⍵:-2⊥~⍵⋄2⊥⍵}∊⌽⍺⊂⍺\⍵}⍵}11 ⎕DR ⍵}
-    ToReal←{{(sign ⍵)×(exp ⍵)×(frac ⍵)}{⎕ML←3 ⋄ (∊4⍴⊂(8⍴1),0){∊⌽⍺⊂⍺\⍵}⍵}11 ⎕DR ⍵}
-    frac←{⎕io←1⋄1++/{2*⍵}¨-(9↓⍵)/⍳23}
+    To64Int←{{⊃⍵:-2⊥~⍵⋄2⊥⍵},⌽[0]8 8⍴11 ⎕DR ⍵} ⍝ thanks VMJ for pimping my code
+    ToReal←{(sign×exp×frac),⊖[0]4 8⍴11 ⎕DR ⍵} ⍝ thanks VMJ for pimping my code
+    frac←{⎕io←1⋄1++/2*-(9↓⍵)/⍳23}
     exp←{2*127-⍨+/2*(⌽8↑1↓⍵)/⍳8}
     sign←{¯1*1↑⍵}            
     split←{a←⍺⋄''{0=⍴⍵:⍺ ⋄ ⍺,(⊂a↑⍵)∇(a↓⍵)}⍵}
@@ -185,9 +185,9 @@
           :Case 10 ⍝ Char (no-op)
           :Case 11 ⋄ r←fromsym r ⍝ Symbols
           :Case 12 ⋄ r←10 ¯3 ⎕dt To64Int¨8 split r ⍝ Timestamp
-          :Case 13 ⋄ r←{{(⌊⍵÷12),1+12|⍵}24000+⍵}¨323 ⎕DR r ⍝ Month
-          :Case 14 ⋄ r←{3↑2 ⎕NQ'.' 'IDNToDate' (36525+⍵)}¨323 ⎕DR r ⍝ Date
-          :Case 15 ⋄ r←{∊13 ¯1 ⎕dt 10957 + ⍵}¨645 ⎕dr r  ⍝ Datetime
+          :Case 13 ⋄ r←{(⌊⍵÷12),1+12|⍵}¨24000+323 ⎕DR r ⍝ Month
+          :Case 14 ⋄ r←{3↑2 ⎕NQ'.' 'IDNToDate' ⍵}¨36525+323 ⎕DR r ⍝ Date
+          :Case 15 ⋄ r←{∊13 ¯1 ⎕dt ⍵}¨10957 +645 ⎕dr r  ⍝ Datetime
           :Case 16 ⋄ r←{(×⍵)×{⍵-2000 1 1 0 0 0 0}∊10 ¯3 ⎕DT|⍵}To64Int r ⍝ Timespan
           :Case 17 ⋄ r←100 60⊤323 ⎕dr r ⍝ Minute
           :Case 18 ⋄ r←100 60 60⊤323 ⎕dr r ⍝ Second
