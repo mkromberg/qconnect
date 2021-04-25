@@ -309,16 +309,46 @@
     ∇
 
 
-    ∇ Make(address port credentials);rc;r;z;step
+    ∇ Make;rc;r;z;step
       :Access Public
       :Implements Constructor
-     
+      wf←⊃⎕nparts #.Q{⍺{0=≢⍵:⍺.SALT_Data.SourceFile ⋄ ⍵}' '~⍨⊃⍵{⍵[⍸(⊂⍺){∨/⍺⍷⍵}¨⍵]}⊃¨5176⌶⍬}'Q.dyalog'
+      settings←←⎕json⊃⎕nget wf,'settings.json'
+      mac win bit64←∨/¨'Mac' 'Windows' '64'⍷¨⊂⊃'.'⎕WG'APLVersion'
       'Credentials must be single-byte char'⎕SIGNAL(80≠⎕DR credentials)/11
-      {}#.DRC.Init''
-      :If 0=0⊃z←#.DRC.Clt''address port'Raw'⊣step←'Connect'
+      :if (mac⍱win)   ⍝ linux
+        :if 0=≢⎕SH'pidof q;exit 0'
+          ⎕SH'q -port ',(⍕#.settings.rserve.port),' >~/Rserve.log 2>&1'
+        :endif
+      :elseif win 
+        :trap 0
+          ⎕USING←,⊂'System.Diagnostics',',',#.settings.dotnet.framework,#.settings.dotnet.lib 
+          si←⎕NEW ProcessStartInfo(⊂#.settings.r.home,'bin\x64\Rserve.exe') 
+          si.Arguments←'--slave --RS-port ',⍕#.settings.rserve.port 
+          si.WindowStyle←ProcessWindowStyle.Hidden 
+          si.CreateNoWindow←1 
+          process←Process.Start si 
+        :else
+          a←⎕CMD 'taskkill /IM q /F'
+          c←'start /b "q" ',('/'⎕R'\\') '"',#.settings.q.home
+          c,←'bin\x64\Rserve.exe" --no-save --slave --RS-port '
+          c,←(⍕#.settings.q.port),' >Rserve.log'
+          (⊂'@ECHO OFF' c) ⎕NPUT (wf,'Windows\start.bat') 1
+          a←⎕cmd (wf,'Windows\start.bat') 'hidden'         
+        :endtrap
+      :elseif mac
+        ∘ ⍝ my macbook is broken
+      :endif
+      
+      :if 0=⎕nc 'DRC' 
+        :if 0=⎕nc '#.Conga'⋄'Conga' #.⎕CY 'conga' ⋄ :endif
+        DRC←#.Conga.Init'' 
+      :endif
+      {}DRC.Init''
+      :If 0=0⊃z←DRC.Clt''address port'Raw'⊣step←'Connect'
           CLT←1⊃z ⍝ Extract Conga client name
-      :AndIf 0=0⊃z←#.DRC.Send CLT((⎕UCS credentials),3 0)⊣step←'Send Handshake'
-      :AndIf 0=0⊃z←#.DRC.Wait CLT⊣step←'Wait for confirmation'
+      :AndIf 0=0⊃z←DRC.Send CLT((⎕UCS credentials),3 0)⊣step←'Send Handshake'
+      :AndIf 0=0⊃z←DRC.Wait CLT⊣step←'Wait for confirmation'
       :AndIf (,3)≡3⊃z⊣step←'Check Q return code'
           LittleEndian←2=⊃4 IntToBytes 2
       :Else
