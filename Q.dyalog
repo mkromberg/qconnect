@@ -14,7 +14,7 @@
     frac←{⎕io←1⋄1++/2*-(9↓⍵)/⍳23}
     exp←{2*127-⍨+/2*(⌽8↑1↓⍵)/⍳8}
     sign←{¯1*1↑⍵}
-    split←{a←⍺⋄''{0=⍴⍵:⍺ ⋄ ⍺,(⊂a↑⍵)∇(a↓⍵)}⍵}
+    split←{↓(⍺,⍨(⍴⍵)÷⍺)⍴⍵}
     rnd←{a←10*⍺ ⋄ a÷⍨⌊0.5+a×⍵}
     IntToBytes←{⎕FR←(⍺=8)⊃645 1287 ⋄ ⍺↑⎕UCS 80 ⎕DR(×⍵)×((2*(8×⍺))-1)⌊|⍵}
       q2a←{
@@ -87,13 +87,13 @@
       }
 
     ∇ r←SendWait data;z;done;length
-      :If 0≠0⊃z←#.DRC.Send CLT data
+      :If 0≠0⊃z←DRC.Send CLT data
           ('Send failed: ',,⍕z)⎕SIGNAL 11
       :EndIf
      
       r←⍬ ⋄ done←0 ⋄ length←¯1
       :Repeat
-          :If 0=0⊃z←#.DRC.Wait CLT
+          :If 0=0⊃z←DRC.Wait CLT
               data←3⊃z
               :If length=¯1 ⍝ First block
                   length←256⊥⌽⍣(LittleEndian=⊃data)⊢4↓8↑data
@@ -309,43 +309,23 @@
     ∇
 
 
-    ∇ Make;rc;r;z;step
+    ∇ Make;rc;r;z;step;wf;settings;mac;win;bit64;credentials
       :Access Public
       :Implements Constructor
       wf←⊃⎕nparts #.Q{⍺{0=≢⍵:⍺.SALT_Data.SourceFile ⋄ ⍵}' '~⍨⊃⍵{⍵[⍸(⊂⍺){∨/⍺⍷⍵}¨⍵]}⊃¨5176⌶⍬}'Q.dyalog'
-      settings←←⎕json⊃⎕nget wf,'settings.json'
+      settings←⎕json⊃⎕nget wf,'settings.json'
       mac win bit64←∨/¨'Mac' 'Windows' '64'⍷¨⊂⊃'.'⎕WG'APLVersion'
+      credentials←1↓∊':',¨settings.q.(username password)  
       'Credentials must be single-byte char'⎕SIGNAL(80≠⎕DR credentials)/11
-      :if (mac⍱win)   ⍝ linux
-        :if 0=≢⎕SH'pidof q;exit 0'
-          ⎕SH'q -port ',(⍕#.settings.rserve.port),' >~/Rserve.log 2>&1'
-        :endif
-      :elseif win 
-        :trap 0
-          ⎕USING←,⊂'System.Diagnostics',',',#.settings.dotnet.framework,#.settings.dotnet.lib 
-          si←⎕NEW ProcessStartInfo(⊂#.settings.r.home,'bin\x64\Rserve.exe') 
-          si.Arguments←'--slave --RS-port ',⍕#.settings.rserve.port 
-          si.WindowStyle←ProcessWindowStyle.Hidden 
-          si.CreateNoWindow←1 
-          process←Process.Start si 
-        :else
-          a←⎕CMD 'taskkill /IM q /F'
-          c←'start /b "q" ',('/'⎕R'\\') '"',#.settings.q.home
-          c,←'bin\x64\Rserve.exe" --no-save --slave --RS-port '
-          c,←(⍕#.settings.q.port),' >Rserve.log'
-          (⊂'@ECHO OFF' c) ⎕NPUT (wf,'Windows\start.bat') 1
-          a←⎕cmd (wf,'Windows\start.bat') 'hidden'         
-        :endtrap
-      :elseif mac
-        ∘ ⍝ my macbook is broken
-      :endif
-      
+     
       :if 0=⎕nc 'DRC' 
         :if 0=⎕nc '#.Conga'⋄'Conga' #.⎕CY 'conga' ⋄ :endif
         DRC←#.Conga.Init'' 
       :endif
-      {}DRC.Init''
-      :If 0=0⊃z←DRC.Clt''address port'Raw'⊣step←'Connect'
+
+      ⍝{}DRC.Init''
+      
+      :If 0=0⊃z←DRC.Clt''settings.q.address settings.q.port 'Raw'⊣step←'Connect'
           CLT←1⊃z ⍝ Extract Conga client name
       :AndIf 0=0⊃z←DRC.Send CLT((⎕UCS credentials),3 0)⊣step←'Send Handshake'
       :AndIf 0=0⊃z←DRC.Wait CLT⊣step←'Wait for confirmation'

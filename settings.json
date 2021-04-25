@@ -1,13 +1,8 @@
 {
   "q":{
     "address": "localhost",
-    "port": 5000,
+    "port": 8080,
     "username": "kimmo",
-    "password":"",
-    "home":"C:/Program Files/R/R-4.0.4/"
-  },
-  "dotnet": {
-    "framework": "C:/Program Files/dotnet/packs/NETStandard.Library.Ref/2.1.0/ref/netstandard2.1/",
-    "lib": "System.Diagnostics.Process.dll"
+    "password":"noel"
   }
 }
