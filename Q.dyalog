@@ -14,7 +14,7 @@
     frac←{⎕io←1⋄1++/2*-(9↓⍵)/⍳23}
     exp←{2*127-⍨+/2*(⌽8↑1↓⍵)/⍳8}
     sign←{¯1*1↑⍵}
-    split←{↓(⍺,⍨(⍴⍵)÷⍺)⍴⍵}
+    split←{((≢⍵)⍴⍺↑1)⊂⍵} ⍝ thanks VMJ for pimping my code
     rnd←{a←10*⍺ ⋄ a÷⍨⌊0.5+a×⍵}
     IntToBytes←{⎕FR←(⍺=8)⊃645 1287 ⋄ ⍺↑⎕UCS 80 ⎕DR(×⍵)×((2*(8×⍺))-1)⌊|⍵}
       q2a←{
@@ -296,13 +296,21 @@
      
           :If error∨atom∧type=11 ⋄ length←1+(headsize↓BUFFER)⍳0
           :ElseIf type=11 ⍝ symbol vector
-              length←1+(+\0=headsize↓BUFFER)⍳shape
+              :if shape=0
+                length←0
+              :else
+                length←1+(+\0=headsize↓BUFFER)⍳shape
+              :endif  
           :Else ⋄ length←size×shape
           :EndIf
      
           r←headsize↓(n←length+headsize)↑BUFFER
           BUFFER←n↓BUFFER
-          r←type q2a ⎕UCS r
+          :if 0=⍴r
+            r←,''
+          :else
+            r←type q2a ⎕UCS r
+          :endif
       :EndSelect
      
       :If atom ⋄ r←⍬⍴r ⋄ :EndIf
