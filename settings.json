@@ -1,0 +1,8 @@
+{
+  "q":{
+    "address": "localhost",
+    "port": 8080,
+    "username": "kimmo",
+    "password":"noel"
+  }
+}
